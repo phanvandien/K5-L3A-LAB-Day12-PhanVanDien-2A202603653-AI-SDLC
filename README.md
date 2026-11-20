@@ -1,103 +1,52 @@
-# Day 12 — AI SDLC: Đảo Đèn Lồng
+# Đảo Đèn Lồng
 
-> **Cá nhân** (1 người / 1 MSSV) · Áp dụng SDLC cùng AI để xây một **game 3D** qua **4 phase**, từ yêu cầu ban đầu tới bản phát hành.
-> **Lab board + trợ giảng:** **[Đảo Đèn Lồng Lab](https://claude.ai/artifact/Q1RYyv1dxjUczzCbd2ZnoW)**
+Game phiêu lưu nhẹ theo ba đêm của Mây trên Đảo Bến, Đảo Cau và Đảo Chuông. Mây nhặt đom đóm, nạp vào đèn, tránh Bóng Mực và dùng Tỏa Sáng để làm chúng choáng.
 
----
+## Chạy game
 
-## Tài liệu của lab
+Cần Node.js 18 trở lên. Trên macOS/Linux:
 
-| File | Nội dung |
-|---|---|
-| [GUIDE.md](GUIDE.md) | Hướng dẫn làm lab: vòng làm việc mỗi phase, harness, kiểm chứng, token |
-| [CHECKPOINTS.md](CHECKPOINTS.md) | Các mốc tự kiểm tra từ chuẩn bị đến nộp bài |
-| [SUBMISSION.md](SUBMISSION.md) | Đặt tên repo, hạn nộp, tag, Release, video, checklist |
-| [RULES.md](RULES.md) | Quy định: AI, trung thực về bằng chứng, bản quyền, bảo mật |
-| [RUBRIC.md](RUBRIC.md) | Thang điểm chi tiết |
+```sh
+npm install
+npm start
+```
 
-## Lab board
+Mở `http://127.0.0.1:4173`. Trên Windows PowerShell dùng `npm.cmd install` và `npm.cmd start` nếu chính sách PowerShell chặn `npm.ps1`. Game chạy cục bộ và không cần thư viện npm ngoài.
 
-Yêu cầu dự án được phát hành tại **[Đảo Đèn Lồng Lab](https://claude.ai/artifact/Q1RYyv1dxjUczzCbd2ZnoW)**. Mỗi phase là một tab (tab chưa phát hành bị khóa), mỗi tab có trợ giảng AI riêng chỉ trả lời trong phạm vi phase đó. Trợ giảng cần đăng nhập claude.ai và dùng lượt Claude của bạn.
+## Điều khiển
 
-## Dự án
+- `W A S D`: di chuyển; `Space`: nhảy; `Shift`: lướt.
+- `E`: nạp đom đóm vào đèn gần nhất; `Q`: Tỏa Sáng.
+- `Esc` hoặc `P`: tạm dừng. Giữ chuột phải và kéo để xoay hướng camera.
+- Cài đặt lưu âm lượng, độ nhạy chuột và bảng màu dễ phân biệt trong trình duyệt.
 
-**Đảo Đèn Lồng**: game 3D góc nhìn thứ ba. Mây, người giữ đèn nhỏ tuổi, gom đom đóm để thắp lại các Đèn Lồng Lớn và né Bóng Mực trong sương đen.
+Đèn sáng hao 1 dầu/giây. Dùng đom đóm để châm dầu; đèn hết dầu tắt và có thể thắp lại. Bóng Mực có thể hút dầu của đèn yếu. Mây phải giữ sáng ít nhất 60% số đèn đến bình minh. Điểm Phase 3: +5 mỗi đom đóm nạp, +100 lần thắp đầu, +40 lần thắp lại, +5 khi pulse trúng Bóng Mực (+15 nếu nó đang hút dầu); thắng cộng 50 + `floor(dầu)` mỗi đèn đang sáng và 50 mỗi Ngọn Lửa còn.
 
-- Không ràng buộc công nghệ; chạy được trên macOS hoặc Linux.
-- Tuân theo **Test Contract** (chế độ headless) để được chấm tự động và so sánh với nhau.
+## Headless và kiểm chứng
 
-| Phase | Bạn nhận | Nộp |
-|---|---|---|
-| 1 | **PRD-0** (mô tả tổng quát) + Test Contract | tag `phase-1` |
-| 2 | **Ticket-02**, phát hành khi Phase 1 kết thúc | tag `phase-2` |
-| 3 | **Ticket-03**, phát hành khi Phase 2 kết thúc | tag `phase-3` |
-| 4 | **Ticket-04**, phát hành khi Phase 3 kết thúc | tag `phase-4` + Release `v1.0.0` |
+`game.contract.json` khai báo Contract 1.2. Lõi mô phỏng chạy ở 60 tick/giây, không cần cửa sổ hay GPU; cùng seed, scenario và inputs cho JSONL giống nhau.
 
-Yêu cầu sẽ được bổ sung và có thể thay đổi giữa các phase, giống dự án thật.
+```sh
+node src/headless.js --seed 42 --night 1 --ticks 600 --out out.jsonl
+node tools/verify.js
+```
 
-### Lịch 4 giờ
+CLI nhận `--seed`, `--night 1|2|3`, `--scenario file.json`, `--inputs file.json`, `--ticks`, `--snapshot-every` và `--out`. JSONL bắt đầu bằng snapshot tick 0, ghi event khi phát sinh, rồi kết thúc bằng record `end`. Scenario đầu vào và kiểm chứng nằm trong `tests/`; kết quả Phase 3 hiện tại ở [docs/proof/phase-1-3-verification.json](docs/proof/phase-1-3-verification.json).
 
-Bài lab kéo dài **4 giờ**. Phase 1 và 2 khoảng **1 giờ**, Phase 3 khoảng **30 phút**, Phase 4 khoảng **1 giờ 30 phút**. Mỗi phase phát hành đúng mốc giờ. Phase mới xuất hiện trên lab board khi tới mốc.
+## Tài liệu dự án
 
-| Mốc | Sự kiện | Hạn tag |
-|---|---|---|
-| 0h | Phát hành **Phase 1** (PRD-0), gồm cả phần chuẩn bị | `phase-1` trước mốc 1h |
-| 1h | Phát hành **Phase 2** | `phase-2` trước mốc 2h |
-| 2h | Phát hành **Phase 3** | `phase-3` trước mốc 2h30 |
-| 2h30 | Phát hành **Phase 4** | `phase-4`, Release `v1.0.0` và video trước mốc 4h |
-| 4h | Hết giờ lab, chốt bài | |
+- [Tiêu chí nghiệm thu và phạm vi Phase 1–3](docs/spec/phase-1-3.md)
+- [Giả định, nhật ký AI và retrospective](docs/notes/phase-1-3.md)
+- [Quyết định thiết kế nhiên liệu và bình minh](docs/notes/ADR-003-fuel-and-dawn.md)
+- [Changelog thay đổi Phase 3](CHANGELOG.md)
+- [Bằng chứng và giới hạn kiểm chứng](docs/proof/phase-1-3-verification.md)
+- [Harness agent](AGENTS.md)
+- [Nguồn asset](CREDITS.md)
 
-Hết giờ mỗi phase thì tag và chuyển sang phase tiếp theo, dù phase chưa hoàn hảo. Chỗ chưa xong ghi trung thực trong bằng chứng.
+## Sáng tạo của tôi
 
----
+Giao diện và hình ảnh được vẽ bằng Canvas 2D tự tạo, không dùng mô hình hoặc hình ảnh bên ngoài. Mây có đèn nhỏ, đom đóm có quầng sáng, đèn có thanh dầu và Bóng Mực hút dầu khi đèn yếu. Có cài đặt bảng màu dễ phân biệt. Đây là hình chiếu 2.5D; renderer 3D đầy đủ vẫn chưa đạt.
 
-## Gợi ý SDLC (cách làm là của bạn)
+## Trạng thái bàn giao
 
-Mỗi phase là một vòng nhỏ. Công cụ, thứ tự, định dạng tài liệu đều tự do; đây chỉ là gợi ý:
-
-1. **Requirements:** biến yêu cầu thành tiêu chí nghiệm thu kiểm chứng được. Chỗ mơ hồ thì tự giả định và ghi lại.
-2. **Plan:** nghĩ cách kiểm chứng **trước** khi để agent viết code.
-3. **Build:** để agent viết, bạn điều phối và review.
-4. **Verify:** chạy thật, kiểm tra hành vi thật. *Không có bằng chứng thì chưa xong*: "agent bảo chạy rồi" không phải bằng chứng.
-5. **Evaluate:** cái gì đạt, AI sai ở đâu, harness (AGENTS.md, skill, hook) cần chỉnh gì.
-6. **Release:** gắn tag.
-
-## Ba điều cần nhớ
-
-> Bạn được **tự do sáng tạo thêm** quanh phần lõi (nhân vật, cơ chế nhỏ, câu chuyện, hiệu ứng, âm thanh…). Sáng tạo gọn và không phá yêu cầu được tính điểm trong hạng mục F của [RUBRIC](RUBRIC.md); ghi mục "Sáng tạo của tôi" trong README của bạn.
-
-- **Game tốt là game đúng yêu cầu của khách hàng**, không phải game phức tạp hay đẹp nhất. Làm đúng và chứng minh được là đúng trước, trau chuốt sau.
-- **Cân nhắc kỹ quota token của bạn.** Đốt nhiều token không làm bài tốt hơn. Ngữ cảnh gọn, kế hoạch rõ, kiểm chứng sớm thường vừa rẻ vừa đúng hơn chạy agent liên tục.
-- **Kiểm chứng là phần quan trọng nhất.** Bằng chứng (test, output headless, ảnh, số đo) đáng giá hơn lời mô tả.
-
----
-
-## Bàn giao cuối cùng
-
-Một **repo GitHub cá nhân, public**, gồm:
-
-1. **Toàn bộ mã nguồn** của game qua 4 phase, tag `phase-1` … `phase-4`, Release `v1.0.0`.
-2. **Video demo `.mp4` dưới 5 phút** (đính kèm Release `v1.0.0` hoặc `docs/demo/demo.mp4`, link ở đầu README): chơi thử và cho thấy bằng chứng game chạy đúng.
-3. **Bằng chứng kiểm chứng** của từng phase (định dạng tự chọn).
-4. **Harness AI đã dùng** (AGENTS.md / CLAUDE.md, skills, hooks, plugins…), giữ nguyên trong repo và lịch sử git.
-5. **Ghi chép ngắn:** spec/giả định mỗi phase, nhật ký dùng AI (gồm token/chi phí ước tính), retro.
-
-Không commit API key, token hay `.env`. Gửi link repo theo hướng dẫn của Coach.
-
-## Đánh giá (100 điểm)
-
-| Hạng mục | Điểm |
-|---|---|
-| Test tự động ẩn (headless, gồm kiểm tra lại phase trước) | 30 |
-| Kiểm chứng & bằng chứng của bạn | 20 |
-| Quy trình SDLC & harness AI | 15 |
-| Evaluation & retro (gồm cách bạn dùng token) | 10 |
-| Hiệu năng & ổn định | 10 |
-| Chất lượng sản phẩm (đúng yêu cầu, chơi được) | 10 |
-| Video demo | 5 |
-
-## Quy định
-
-- Dùng AI thoải mái; không sao chép repo của người khác.
-- Bằng chứng phải thật: test luôn đạt hay output sửa tay là vi phạm.
-- Nhân vật, bối cảnh là bản gốc của lab; asset bên ngoài chỉ dùng loại CC0/CC-BY/MIT hoặc tự tạo, ghi nguồn trong `CREDITS.md`.
+Mã nguồn Phase 1–3 và scenario được cập nhật. Bộ kiểm chứng headless có test regression Phase 1–2 cùng scenario Phase 3. Các giới hạn còn lại và mục chưa được xác nhận bằng cách chơi giao diện thật được ghi rõ trong spec và bằng chứng. Chưa có video demo, tag Git hay Release được tạo trong workspace này.

@@ -1,0 +1,31 @@
+{
+  "suite": "Dao Den Long Phase 1–3 regression + scenarios",
+  "generated_at": "2026-11-20T09:54:52.543Z",
+  "node": "v26.13.1",
+  "passed": 20,
+  "checks": [
+    "Contract 1.2; deterministic seed and JSONL end record",
+    "firefly pickup and one-press lantern deposit scoring",
+    "relight costs five motes, gives 40 points, and raises capacity",
+    "lit lamp top-up is capped and reports refuel",
+    "fuel uses 1/60 units and extinguishes at zero",
+    "drain shade removes five fuel per second and logs each 60 ticks",
+    "pulse on a draining shade awards 15 points",
+    "successful lights raise capacity to a hard maximum of 20",
+    "win waits until dawn, uses the 60 percent threshold and new score",
+    "no-flames takes precedence on the dawn tick",
+    "dash input, speed, and cooldown",
+    "Night 2 and Night 3 spring pads set the required launch velocity",
+    "pulse stun, push and score",
+    "shade hit, invulnerability, dropped motes and 2 m recoil over 60 ticks",
+    "wind charm pickup and persistent timer state",
+    "Wind Drifter steals three and enters flee",
+    "pause freezes simulation time and resumes",
+    "three map lantern counts, Phase 3 night durations and wind cycle",
+    "Phase 1 scenario array format remains accepted",
+    "full Night 3 headless limit is 18,000 ticks and under 30 seconds"
+  ],
+  "metrics": {
+    "full_night_wall_ms": 66
+  }
+}

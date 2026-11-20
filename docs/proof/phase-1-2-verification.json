@@ -1,0 +1,23 @@
+{
+  "suite": "Dao Den Long Phase 1 regression + Phase 2 scenarios",
+  "generated_at": "2026-11-20T08:49:17.576Z",
+  "node": "v26.13.1",
+  "passed": 12,
+  "checks": [
+    "Contract 1.1; deterministic seed and JSONL end record",
+    "firefly pickup and one-press lantern deposit scoring",
+    "dash input, speed, and cooldown",
+    "Night 2 and Night 3 spring pads set the required launch velocity",
+    "pulse stun, push and score",
+    "shade hit, invulnerability, dropped motes and 2 m recoil over 60 ticks",
+    "wind charm pickup and persistent timer state",
+    "Wind Drifter steals three and enters flee",
+    "pause freezes simulation time and resumes",
+    "three map lantern counts, night durations and wind cycle",
+    "Phase 1 scenario array format remains accepted",
+    "full Night 3 headless limit is 21,600 ticks and under 30 seconds"
+  ],
+  "metrics": {
+    "full_night_wall_ms": 57
+  }
+}

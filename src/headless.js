@@ -1,0 +1,15 @@
+'use strict';
+const fs=require('node:fs');
+const path=require('node:path');
+const {GameSim}=require('./sim');
+
+function fail(message,code=1){process.stderr.write(`${message}\n`);process.exit(code);}
+function parseArgs(argv){const out={};for(let i=0;i<argv.length;i++){const a=argv[i];if(a==='--seed'||a==='--night'||a==='--scenario'||a==='--inputs'||a==='--ticks'||a==='--out'||a==='--snapshot-every'){if(!argv[i+1]||argv[i+1].startsWith('--'))fail(`Missing value for ${a}`,1);out[a.slice(2).replaceAll('-','_')]=argv[++i];}else fail(`Unknown argument: ${a}`,1);}for(const k of ['seed','night','ticks','out'])if(out[k]===undefined)fail(`Required argument --${k.replaceAll('_','-')} is missing`,1);out.seed=Number(out.seed);out.night=Number(out.night);out.ticks=Number(out.ticks);out.snapshot_every=out.snapshot_every===undefined?10:Number(out.snapshot_every);if(!Number.isInteger(out.seed)||!Number.isInteger(out.night)||!Number.isInteger(out.ticks)||out.ticks<0||!Number.isInteger(out.snapshot_every)||out.snapshot_every<1)fail('seed, night, ticks and snapshot-every must be valid integers',1);return out;}
+function readJson(file,label){if(!file)return null;try{return JSON.parse(fs.readFileSync(file,'utf8'));}catch(e){fail(`Invalid ${label} file: ${e.message}`,2);}}
+function loadInputs(file){const data=readJson(file,'inputs');if(data===null)return[];if(!data||!Array.isArray(data.frames))fail('inputs must contain a frames array',2);let last=-1;const allowed=new Set(['tick','move','cam_yaw_deg','jump','interact','pulse','dash','pause']);for(const f of data.frames){if(!f||!Number.isInteger(f.tick)||f.tick<0||f.tick<=last)fail('input frame ticks must be non-negative and strictly increasing',2);for(const k of Object.keys(f))if(!allowed.has(k))fail(`unknown input field: ${k}`,2);last=f.tick;}return data.frames;}
+function main(){const args=parseArgs(process.argv.slice(2));const scenario=readJson(args.scenario,'scenario');let game,frames;try{frames=loadInputs(args.inputs);game=new GameSim({seed:args.seed,night:args.night,scenario});}catch(e){fail(e.message,2);}const byTick=new Map(frames.map(f=>[f.tick,f]));const out=[];out.push(JSON.stringify(game.snapshot()));for(const ev of game.events)out.push(JSON.stringify(ev));const start=Date.now();
+ for(let i=0;i<args.ticks&&game.state==='playing';i++){try{game.tick(byTick.get(i)||{});}catch(e){fail(`Invalid input at frame ${i}: ${e.message}`,2);}for(const ev of game.events)out.push(JSON.stringify(ev));if(game.wallTick%args.snapshot_every===0)out.push(JSON.stringify(game.snapshot()));}
+ if(game.wallTick%args.snapshot_every!==0)out.push(JSON.stringify(game.snapshot()));out.push(JSON.stringify({type:'end',ticks:game.wallTick,state:game.state,score:game.score}));
+ try{fs.mkdirSync(path.dirname(path.resolve(args.out)),{recursive:true});fs.writeFileSync(args.out,out.join('\n')+'\n','utf8');}catch(e){fail(`Cannot write output: ${e.message}`);}if(Date.now()-start>30000)process.stderr.write('Warning: simulation exceeded 30 seconds\n');
+}
+main();

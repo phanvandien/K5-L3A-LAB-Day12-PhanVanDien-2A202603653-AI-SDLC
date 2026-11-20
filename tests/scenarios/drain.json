@@ -1,0 +1,1 @@
+{"player":{"pos":[0,0,0]},"random_motes":false,"random_shades":false,"motes":[],"shades":[{"id":"S1","pos":[11,0,0],"state":"drain","target_lantern_id":"L1"}],"lanterns":[{"id":"L1","pos":[10,0,0],"lit":true,"fuel":20,"ever_lit":true}]}
